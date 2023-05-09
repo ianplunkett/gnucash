@@ -3,7 +3,7 @@
     {
       "target_name": "gnucash_core",
       "sources": [
-        "bindings/python/gnucash_core_wrap.cxx"
+        "bindings/javascript/gnucash_core_wrap.cxx"
       ],
       "include_dirs": [
         "../gnucash-build/common",

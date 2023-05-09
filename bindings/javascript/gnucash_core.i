@@ -41,12 +41,18 @@
     @ingroup python_bindings
 */
 
+%{
+  void SwigV8ThrowException(const char* message) {
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();
+    isolate->ThrowException(v8::Exception::TypeError(v8::String::NewFromUtf8(isolate, message).ToLocalChecked()));
+  }
+%}
+
 %feature("autodoc", "1");
 %module(package="gnucash") gnucash_core_c
 
 %{
 #include <config.h>
-#include <datetime.h>
 #include "qofsession.h"
 #include "qofbook.h"
 #include "qofbackend.h"
@@ -120,70 +126,69 @@
 %include <gnc-commodity.h>
 
 %typemap(out) GncOwner * {
-    GncOwnerType owner_type = gncOwnerGetType($1);
-    PyObject * owner_tuple = PyTuple_New(2);
-    PyTuple_SetItem(owner_tuple, 0, PyInt_FromLong( (long) owner_type ) );
-    PyObject * swig_wrapper_object;
-    if (owner_type == GNC_OWNER_CUSTOMER ){
-        swig_wrapper_object = SWIG_NewPointerObj(
-        gncOwnerGetCustomer($1), $descriptor(GncCustomer *), 0);
-    }
-    else if (owner_type == GNC_OWNER_JOB){
-        swig_wrapper_object = SWIG_NewPointerObj(
-        gncOwnerGetJob($1), $descriptor(GncJob *), 0);
-    }
-    else if (owner_type == GNC_OWNER_VENDOR){
-        swig_wrapper_object = SWIG_NewPointerObj(
-        gncOwnerGetVendor($1), $descriptor(GncVendor *), 0);
-    }
-    else if (owner_type == GNC_OWNER_EMPLOYEE){
-        swig_wrapper_object = SWIG_NewPointerObj(
-        gncOwnerGetEmployee($1), $descriptor(GncEmployee *), 0);
-    }
-    else {
-        swig_wrapper_object = Py_None;
-    Py_INCREF(Py_None);
-    }
-    PyTuple_SetItem(owner_tuple, 1, swig_wrapper_object);
-    $result = owner_tuple;
-}
+  GncOwnerType owner_type = gncOwnerGetType($1);
+  v8::Local<v8::Array> owner_tuple = v8::Array::New(v8::Isolate::GetCurrent(), 2);
+  owner_tuple->Set(0, v8::Int32::New(v8::Isolate::GetCurrent(), static_cast<int32_t>(owner_type)));
 
+  v8::Local<v8::Value> swig_wrapper_object;
+  if (owner_type == GNC_OWNER_CUSTOMER) {
+    swig_wrapper_object = SWIGV8_NewPointerObj(
+      gncOwnerGetCustomer($1), $descriptor(GncCustomer *), SWIG_POINTER_NEW | 0);
+  }
+  else if (owner_type == GNC_OWNER_JOB) {
+    swig_wrapper_object = SWIGV8_NewPointerObj(
+      gncOwnerGetJob($1), $descriptor(GncJob *), SWIG_POINTER_NEW | 0);
+  }
+  else if (owner_type == GNC_OWNER_VENDOR) {
+    swig_wrapper_object = SWIGV8_NewPointerObj(
+      gncOwnerGetVendor($1), $descriptor(GncVendor *), SWIG_POINTER_NEW | 0);
+  }
+  else if (owner_type == GNC_OWNER_EMPLOYEE) {
+    swig_wrapper_object = SWIGV8_NewPointerObj(
+      gncOwnerGetEmployee($1), $descriptor(GncEmployee *), SWIG_POINTER_NEW | 0);
+  }
+  else {
+    swig_wrapper_object = v8::Null(v8::Isolate::GetCurrent());
+  }
+
+  owner_tuple->Set(1, swig_wrapper_object);
+  $result = owner_tuple;
+}
 
 %typemap(in) GncOwner * {
-    GncOwner * temp_owner = gncOwnerNew();
-    void * pointer_to_real_thing;
-    if ((SWIG_ConvertPtr($input, &pointer_to_real_thing,
-                         $descriptor(GncCustomer *),
-                         SWIG_POINTER_EXCEPTION)) == 0){
-        gncOwnerInitCustomer(temp_owner, (GncCustomer *)pointer_to_real_thing);
-        $1 = temp_owner;
-    }
-    else if ((SWIG_ConvertPtr($input, &pointer_to_real_thing,
-                         $descriptor(GncJob *),
-                         SWIG_POINTER_EXCEPTION)) == 0){
-        gncOwnerInitJob(temp_owner, (GncJob *)pointer_to_real_thing);
-        $1 = temp_owner;
-    }
-    else if ((SWIG_ConvertPtr($input, &pointer_to_real_thing,
-                         $descriptor(GncVendor *),
-                         SWIG_POINTER_EXCEPTION)) == 0){
-        gncOwnerInitVendor(temp_owner, (GncVendor *)pointer_to_real_thing);
-        $1 = temp_owner;
-    }
-    else if ((SWIG_ConvertPtr($input, &pointer_to_real_thing,
-                         $descriptor(GncEmployee *),
-                         SWIG_POINTER_EXCEPTION)) == 0){
-        gncOwnerInitEmployee(temp_owner, (GncEmployee *)pointer_to_real_thing);
-        $1 = temp_owner;
-    }
-    else {
-    PyErr_SetString(
-        PyExc_ValueError,
-        "Python object passed to function with GncOwner * argument "
-        "couldn't be converted back to pointer of that type");
-        return NULL;
-    }
+  GncOwner *temp_owner = gncOwnerNew();
+  void *pointer_to_real_thing;
+  if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
+                          $descriptor(GncCustomer *),
+                          SWIG_POINTER_EXCEPTION)) == 0) {
+    gncOwnerInitCustomer(temp_owner, (GncCustomer *)pointer_to_real_thing);
+    $1 = temp_owner;
+  }
+  else if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
+                               $descriptor(GncJob *),
+                               SWIG_POINTER_EXCEPTION)) == 0) {
+    gncOwnerInitJob(temp_owner, (GncJob *)pointer_to_real_thing);
+    $1 = temp_owner;
+  }
+  else if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
+                               $descriptor(GncVendor *),
+                               SWIG_POINTER_EXCEPTION)) == 0) {
+    gncOwnerInitVendor(temp_owner, (GncVendor *)pointer_to_real_thing);
+    $1 = temp_owner;
+  }
+  else if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
+                               $descriptor(GncEmployee *),
+                               SWIG_POINTER_EXCEPTION)) == 0) {
+    gncOwnerInitEmployee(temp_owner, (GncEmployee *)pointer_to_real_thing);
+    $1 = temp_owner;
+  }
+  else {
+    SwigV8ThrowException("JavaScript object passed to function with GncOwner * argument "
+                         "couldn't be converted back to pointer of that type");
+    return;
+  }
 }
+
 
 %typemap(freearg) GncOwner * {
     gncOwnerFree($1);
