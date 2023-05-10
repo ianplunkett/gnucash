@@ -128,30 +128,31 @@
 %typemap(out) GncOwner * {
   GncOwnerType owner_type = gncOwnerGetType($1);
   v8::Local<v8::Array> owner_tuple = v8::Array::New(v8::Isolate::GetCurrent(), 2);
-  owner_tuple->Set(0, v8::Int32::New(v8::Isolate::GetCurrent(), static_cast<int32_t>(owner_type)));
+  v8::Local<v8::Context> context = v8::Isolate::GetCurrent()->GetCurrentContext();
+  owner_tuple->Set(context, 0, v8::Int32::New(v8::Isolate::GetCurrent(), static_cast<int32_t>(owner_type)));
 
   v8::Local<v8::Value> swig_wrapper_object;
   if (owner_type == GNC_OWNER_CUSTOMER) {
-    swig_wrapper_object = SWIGV8_NewPointerObj(
-      gncOwnerGetCustomer($1), $descriptor(GncCustomer *), SWIG_POINTER_NEW | 0);
+    swig_wrapper_object = SWIG_V8_NewPointerObj(
+      gncOwnerGetCustomer($1), $descriptor(GncCustomer *), SWIG_POINTER_OWN| 0);
   }
   else if (owner_type == GNC_OWNER_JOB) {
-    swig_wrapper_object = SWIGV8_NewPointerObj(
-      gncOwnerGetJob($1), $descriptor(GncJob *), SWIG_POINTER_NEW | 0);
+    swig_wrapper_object = SWIG_V8_NewPointerObj(
+      gncOwnerGetJob($1), $descriptor(GncJob *), SWIG_POINTER_OWN | 0);
   }
   else if (owner_type == GNC_OWNER_VENDOR) {
-    swig_wrapper_object = SWIGV8_NewPointerObj(
-      gncOwnerGetVendor($1), $descriptor(GncVendor *), SWIG_POINTER_NEW | 0);
+    swig_wrapper_object = SWIG_V8_NewPointerObj(
+      gncOwnerGetVendor($1), $descriptor(GncVendor *), SWIG_POINTER_OWN | 0);
   }
   else if (owner_type == GNC_OWNER_EMPLOYEE) {
-    swig_wrapper_object = SWIGV8_NewPointerObj(
-      gncOwnerGetEmployee($1), $descriptor(GncEmployee *), SWIG_POINTER_NEW | 0);
+    swig_wrapper_object = SWIG_V8_NewPointerObj(
+      gncOwnerGetEmployee($1), $descriptor(GncEmployee *), SWIG_POINTER_OWN | 0);
   }
   else {
     swig_wrapper_object = v8::Null(v8::Isolate::GetCurrent());
   }
+  owner_tuple->Set(context, 1, swig_wrapper_object).ToChecked();
 
-  owner_tuple->Set(1, swig_wrapper_object);
   $result = owner_tuple;
 }
 
@@ -160,25 +161,25 @@
   void *pointer_to_real_thing;
   if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
                           $descriptor(GncCustomer *),
-                          SWIG_POINTER_EXCEPTION)) == 0) {
+                          SWIG_POINTER_OWN)) == 0) {
     gncOwnerInitCustomer(temp_owner, (GncCustomer *)pointer_to_real_thing);
     $1 = temp_owner;
   }
   else if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
                                $descriptor(GncJob *),
-                               SWIG_POINTER_EXCEPTION)) == 0) {
+                               SWIG_POINTER_OWN)) == 0) {
     gncOwnerInitJob(temp_owner, (GncJob *)pointer_to_real_thing);
     $1 = temp_owner;
   }
   else if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
                                $descriptor(GncVendor *),
-                               SWIG_POINTER_EXCEPTION)) == 0) {
+                               SWIG_POINTER_OWN)) == 0) {
     gncOwnerInitVendor(temp_owner, (GncVendor *)pointer_to_real_thing);
     $1 = temp_owner;
   }
   else if ((SWIG_V8_ConvertPtr($input, &pointer_to_real_thing,
                                $descriptor(GncEmployee *),
-                               SWIG_POINTER_EXCEPTION)) == 0) {
+                               SWIG_POINTER_OWN)) == 0) {
     gncOwnerInitEmployee(temp_owner, (GncEmployee *)pointer_to_real_thing);
     $1 = temp_owner;
   }
