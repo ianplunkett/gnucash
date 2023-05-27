@@ -984,3 +984,9 @@ if(UNIX)
 endif()
 
 include (CPack)
+
+include(CheckTypeSize)
+CHECK_TYPE_SIZE("unsigned long long" SIZEOF_UNSIGNED_LONG_LONG)
+if(SIZEOF_UNSIGNED_LONG_LONG)
+  set(HAVE_SCANF_LLU 1)
+endif()

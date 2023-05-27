@@ -592,21 +592,21 @@ calc_price_time(const PriceParams& p)
             "-" + date_tmp.substr (3, 2);
         try
         {
-            auto close_time{GncDateTime(iso_date_str + " 16:00:00")};
-            PINFO("Quote date included, using %s for %s:%s",
+            GncDateTime close_time(iso_date_str + " 16:00:00");
+       PINFO("Quote date included, using %s for %s:%s",
                   close_time.format("%Y-%m-%d %H:%M:%S").c_str(), p.ns, p.mnemonic);
             return static_cast<time64>(close_time);
         }
         catch (...)
         {
-            auto now{GncDateTime()};
+            GncDateTime now;
             PWARN("Warning: failed to parse quote date '%s' for %s:%s - will use %s",
                   iso_date_str.c_str(),  p.ns, p.mnemonic, now.format("%Y-%m-%d %H:%M%S").c_str());
             return static_cast<time64>(now);
         }
     }
 
-    auto now{GncDateTime()};
+    GncDateTime now;
     PINFO("No date  was returned for %s:%s - will use %s",
           p.ns, p.mnemonic, now.format("%Y-%m-%d %H:%M%S").c_str());
     return static_cast<time64>(now);

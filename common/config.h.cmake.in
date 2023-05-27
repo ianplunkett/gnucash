@@ -159,6 +159,9 @@
 /* Define if scanf supports %lld conversions. */
 #cmakedefine HAVE_SCANF_LLD 1
 
+/* Define if scanf supports %llu conversions. */
+#cmakedefine HAVE_SCANF_LLU
+
 /* Define if scanf supports %qd conversions. */
 #cmakedefine HAVE_SCANF_QD 1
 
